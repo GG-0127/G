@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navLinks = [
   { label: '首页', path: '/' },
@@ -13,10 +14,16 @@ const navLinks = [
 export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
 
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setMobileOpen(false);
   };
 
   return (
@@ -42,6 +49,33 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+        </div>
+
+        {/* Desktop auth */}
+        <div className="hidden md:flex items-center gap-2">
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5 text-sm text-gray-600">
+                <User className="h-4 w-4" />
+                {user?.username}
+                <span className="text-xs text-gray-400">({user?.role})</span>
+              </span>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
+              >
+                <LogOut className="h-4 w-4" />
+                退出
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/login"
+              className="rounded-lg bg-primary-700 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-primary-800"
+            >
+              登录
+            </Link>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -72,6 +106,31 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <div className="my-1 border-t border-gray-100" />
+            {isAuthenticated ? (
+              <div className="px-3 py-2">
+                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                  <User className="h-4 w-4" />
+                  {user?.username}
+                  <span className="text-xs text-gray-400">({user?.role})</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full rounded-lg px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+                >
+                  <LogOut className="h-4 w-4" />
+                  退出登录
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="mx-3 rounded-lg bg-primary-700 px-4 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-primary-800"
+              >
+                登录
+              </Link>
+            )}
           </div>
         </div>
       )}
