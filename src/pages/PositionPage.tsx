@@ -4,54 +4,17 @@ import { Briefcase, Filter, GraduationCap, BookOpen, UserCheck, Star, TrendingUp
 import { positionRecommendations as positions } from '@/data/positions';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
-import { PositionRecommendation } from '@/types';
-
-const educationOptions = ['不限', '大专', '本科', '硕士及以上'];
-const majorOptions = ['法学', '经济学', '会计学', '计算机', '汉语言文学', '公共管理', '不限'];
-const candidateTypeOptions = ['不限', '应届生', '往届生'];
-const politicalStatusOptions = ['不限', '中共党员', '共青团员'];
-const examTypeOptions = ['国考', '省考', '选调生'];
-
-const educationLabelMap: Record<string, string> = {
-  '大专': '大专及以上',
-  '本科': '本科及以上',
-  '硕士及以上': '硕士及以上',
-};
-
-function matchEducation(position: PositionRecommendation, selected: string): boolean {
-  if (selected === '不限') return true;
-  const target = educationLabelMap[selected] || selected;
-  return position.suitableFor.education.includes(target) || position.suitableFor.education.includes('不限');
-}
-
-function matchMajor(position: PositionRecommendation, selectedMajors: string[]): boolean {
-  if (selectedMajors.length === 0) return true;
-  if (selectedMajors.includes('不限')) return true;
-  if (position.suitableFor.majors.includes('不限')) return true;
-  return selectedMajors.some((m) => position.suitableFor.majors.includes(m));
-}
-
-function matchCandidateType(position: PositionRecommendation, selected: string): boolean {
-  if (selected === '不限') return true;
-  if (selected === '应届生') return position.suitableFor.isFreshGrad === true;
-  if (selected === '往届生') return position.suitableFor.isFreshGrad !== true;
-  return true;
-}
-
-function matchPoliticalStatus(position: PositionRecommendation, selected: string): boolean {
-  if (selected === '不限') return true;
-  const statuses = position.suitableFor.politicalStatus;
-  if (statuses.includes('不限')) return true;
-  if (selected === '中共党员') {
-    return statuses.some((s) => s.startsWith('中共党员'));
-  }
-  return statuses.includes(selected);
-}
-
-function matchExamType(position: PositionRecommendation, selectedExamTypes: string[]): boolean {
-  if (selectedExamTypes.length === 0) return true;
-  return selectedExamTypes.includes(position.examType);
-}
+import type { PositionRecommendation } from '@/types';
+import {
+  EDUCATION_OPTIONS,
+  MAJOR_OPTIONS,
+  CANDIDATE_TYPE_OPTIONS,
+  POLITICAL_STATUS_OPTIONS,
+  EXAM_TYPE_OPTIONS,
+  matchPosition,
+  calculateMatchScore,
+  type PositionFilterCriteria,
+} from '@/domain/positionMatching';
 
 interface ScoredPosition extends PositionRecommendation {
   score: number;
@@ -100,47 +63,22 @@ export default function PositionPage() {
   };
 
   const filteredPositions = useMemo<ScoredPosition[]>(() => {
-    const scored = positions.map((pos) => {
-      let matchCount = 0;
-      let totalCriteria = 0;
+    const criteria: PositionFilterCriteria = {
+      education,
+      selectedMajors,
+      candidateType,
+      politicalStatus,
+      selectedExamTypes,
+    };
 
-      if (education !== '不限') {
-        totalCriteria++;
-        if (matchEducation(pos, education)) matchCount++;
-      }
-      if (selectedMajors.length > 0) {
-        totalCriteria++;
-        if (matchMajor(pos, selectedMajors)) matchCount++;
-      }
-      if (candidateType !== '不限') {
-        totalCriteria++;
-        if (matchCandidateType(pos, candidateType)) matchCount++;
-      }
-      if (politicalStatus !== '不限') {
-        totalCriteria++;
-        if (matchPoliticalStatus(pos, politicalStatus)) matchCount++;
-      }
-      if (selectedExamTypes.length > 0) {
-        totalCriteria++;
-        if (matchExamType(pos, selectedExamTypes)) matchCount++;
-      }
+    const scored = positions.map((pos) => ({
+      ...pos,
+      score: calculateMatchScore(pos, criteria),
+    }));
 
-      const score = totalCriteria > 0 ? Math.round((matchCount / totalCriteria) * 100) : 100;
-
-      return { ...pos, score };
-    });
-
-    const filtered = scored.filter((pos) => {
-      if (!matchEducation(pos, education)) return false;
-      if (!matchMajor(pos, selectedMajors)) return false;
-      if (!matchCandidateType(pos, candidateType)) return false;
-      if (!matchPoliticalStatus(pos, politicalStatus)) return false;
-      if (!matchExamType(pos, selectedExamTypes)) return false;
-      return true;
-    });
-
-    filtered.sort((a, b) => b.score - a.score);
-    return filtered;
+    return scored
+      .filter((pos) => matchPosition(pos, criteria))
+      .sort((a, b) => b.score - a.score);
   }, [education, selectedMajors, candidateType, politicalStatus, selectedExamTypes]);
 
   const getExamTypeBadgeVariant = (examType: string) => {
@@ -202,7 +140,7 @@ export default function PositionPage() {
                   <span className="text-sm font-medium text-gray-700">学历</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {educationOptions.map((opt) => (
+                  {EDUCATION_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setEducation(opt)}
@@ -226,7 +164,7 @@ export default function PositionPage() {
                   <span className="text-xs text-gray-400">（可多选）</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {majorOptions.map((opt) => (
+                  {MAJOR_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => toggleMajor(opt)}
@@ -249,7 +187,7 @@ export default function PositionPage() {
                   <span className="text-sm font-medium text-gray-700">考生类型</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {candidateTypeOptions.map((opt) => (
+                  {CANDIDATE_TYPE_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setCandidateType(opt)}
@@ -272,7 +210,7 @@ export default function PositionPage() {
                   <span className="text-sm font-medium text-gray-700">政治面貌</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {politicalStatusOptions.map((opt) => (
+                  {POLITICAL_STATUS_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => setPoliticalStatus(opt)}
@@ -296,7 +234,7 @@ export default function PositionPage() {
                   <span className="text-xs text-gray-400">（可多选）</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {examTypeOptions.map((opt) => (
+                  {EXAM_TYPE_OPTIONS.map((opt) => (
                     <button
                       key={opt}
                       onClick={() => toggleExamType(opt)}
