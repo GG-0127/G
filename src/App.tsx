@@ -1,13 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "@/components/Layout/Navbar";
 import Footer from "@/components/Layout/Footer";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import HomePage from "@/pages/HomePage";
 import QuestionBankPage from "@/pages/QuestionBankPage";
 import TipsPage from "@/pages/TipsPage";
 import RegionPage from "@/pages/RegionPage";
 import PositionPage from "@/pages/PositionPage";
-import LoginPage from "@/pages/LoginPage";
 
 export default function App() {
   return (
@@ -20,15 +18,7 @@ export default function App() {
             <Route path="/question-bank" element={<QuestionBankPage />} />
             <Route path="/tips" element={<TipsPage />} />
             <Route path="/region" element={<RegionPage />} />
-            <Route
-              path="/position"
-              element={
-                <ProtectedRoute>
-                  <PositionPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/position" element={<PositionPage />} />
           </Routes>
         </main>
         <Footer />
