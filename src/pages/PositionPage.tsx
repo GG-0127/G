@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Briefcase, Filter, GraduationCap, BookOpen, UserCheck, Star, TrendingUp, DollarSign, MapPin, Target, ChevronDown, X } from 'lucide-react';
+import { Briefcase, Filter, GraduationCap, BookOpen, UserCheck, Star, TrendingUp, DollarSign, MapPin, Target, ChevronDown, ChevronUp, X, FileText, CheckCircle, AlertTriangle, Lightbulb } from 'lucide-react';
 import { positionRecommendations as positions } from '@/data/positions';
 import Card from '@/components/Card';
 import Badge from '@/components/Badge';
@@ -26,6 +26,7 @@ export default function PositionPage() {
   const [candidateType, setCandidateType] = useState('不限');
   const [politicalStatus, setPoliticalStatus] = useState('不限');
   const [selectedExamTypes, setSelectedExamTypes] = useState<string[]>([]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const hasActiveFilters =
     education !== '不限' ||
@@ -379,13 +380,128 @@ export default function PositionPage() {
                           </div>
 
                           {/* Recommendation Reason */}
-                          <div className="mt-auto pt-4">
+                          <div className="pt-4">
                             <div className="rounded-lg border-l-4 border-primary-500 bg-primary-50 p-3">
                               <p className="text-sm leading-relaxed text-primary-800">
                                 {pos.recommendationReason}
                               </p>
                             </div>
                           </div>
+
+                          {/* Toggle Detail Button */}
+                          <button
+                            onClick={() =>
+                              setExpandedId(expandedId === pos.id ? null : pos.id)
+                            }
+                            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-200 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+                          >
+                            {expandedId === pos.id ? (
+                              <>
+                                <ChevronUp className="h-4 w-4" />
+                                收起详情
+                              </>
+                            ) : (
+                              <>
+                                <ChevronDown className="h-4 w-4" />
+                                查看详情
+                              </>
+                            )}
+                          </button>
+
+                          {/* Expandable Detail Section */}
+                          <AnimatePresence initial={false}>
+                            {expandedId === pos.id && (
+                              <motion.div
+                                key="detail"
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-4 space-y-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4">
+                                  {/* 岗位职责 */}
+                                  <div>
+                                    <div className="mb-1.5 flex items-center gap-2">
+                                      <Briefcase className="h-4 w-4 text-gray-500" />
+                                      <span className="text-sm font-semibold text-gray-700">
+                                        岗位职责
+                                      </span>
+                                    </div>
+                                    <p className="text-sm leading-relaxed text-gray-600">
+                                      {pos.jobDescription}
+                                    </p>
+                                  </div>
+
+                                  {/* 考试科目 */}
+                                  <div>
+                                    <div className="mb-1.5 flex items-center gap-2">
+                                      <FileText className="h-4 w-4 text-gray-500" />
+                                      <span className="text-sm font-semibold text-gray-700">
+                                        考试科目
+                                      </span>
+                                    </div>
+                                    <p className="text-sm leading-relaxed text-gray-600">
+                                      {pos.examSubjects}
+                                    </p>
+                                  </div>
+
+                                  {/* 优势 */}
+                                  <div>
+                                    <div className="mb-1.5 flex items-center gap-2">
+                                      <CheckCircle className="h-4 w-4 text-green-500" />
+                                      <span className="text-sm font-semibold text-gray-700">
+                                        优势
+                                      </span>
+                                    </div>
+                                    <ul className="list-inside list-disc space-y-1">
+                                      {pos.pros.map((pro, i) => (
+                                        <li
+                                          key={i}
+                                          className="text-sm leading-relaxed text-green-700"
+                                        >
+                                          {pro}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+
+                                  {/* 劣势 */}
+                                  <div>
+                                    <div className="mb-1.5 flex items-center gap-2">
+                                      <AlertTriangle className="h-4 w-4 text-amber-500" />
+                                      <span className="text-sm font-semibold text-gray-700">
+                                        劣势
+                                      </span>
+                                    </div>
+                                    <ul className="list-inside list-disc space-y-1">
+                                      {pos.cons.map((con, i) => (
+                                        <li
+                                          key={i}
+                                          className="text-sm leading-relaxed text-amber-700"
+                                        >
+                                          {con}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+
+                                  {/* 备考建议 */}
+                                  <div className="rounded-lg border-l-4 border-yellow-400 bg-yellow-50 p-3">
+                                    <div className="mb-1.5 flex items-center gap-2">
+                                      <Lightbulb className="h-4 w-4 text-yellow-600" />
+                                      <span className="text-sm font-semibold text-gray-700">
+                                        备考建议
+                                      </span>
+                                    </div>
+                                    <p className="text-sm leading-relaxed text-gray-700">
+                                      {pos.tipsForPreparation}
+                                    </p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       </Card>
                     </motion.div>

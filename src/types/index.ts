@@ -51,6 +51,11 @@ export interface PositionRecommendation {
   developmentProspect: string;
   salaryLevel: string;
   recommendationReason: string;
+  jobDescription: string;
+  examSubjects: string;
+  pros: string[];
+  cons: string[];
+  tipsForPreparation: string;
 }
 
 export interface ExamTip {
