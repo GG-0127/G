@@ -1,4 +1,6 @@
 import { ExamModule } from '@/types';
+import { recentXingceModules } from '@/data/recentXingceQuestions';
+import { recentShenlunModules } from '@/data/recentShenlunQuestions';
 
 export const questionBank: ExamModule[] = [
   // ==================== 行测模块 ====================
@@ -2185,6 +2187,8 @@ export const questionBank: ExamModule[] = [
       },
     ],
   },
+  ...recentXingceModules,
+  ...recentShenlunModules,
 ];
 
 export default questionBank;
