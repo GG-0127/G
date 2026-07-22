@@ -1,0 +1,47 @@
+name: Daily News Update
+
+on:
+  schedule:
+    # 每天北京时间 08:00 (UTC 00:00) 运行
+    - cron: "0 0 * * *"
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run news update script
+        run: npx tsx scripts/update-news.ts
+
+      - name: Check for changes
+        id: check
+        run: |
+          if [ -n "$(git status --porcelain src/data/news.ts)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/data/news.ts
+          git commit -m "chore: 自动更新考公热点新闻 [skip ci]"
+          git push
