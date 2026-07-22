@@ -1,11 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "@/components/Layout/Navbar";
-import Footer from "@/components/Layout/Footer";
-import HomePage from "@/pages/HomePage";
-import QuestionBankPage from "@/pages/QuestionBankPage";
-import TipsPage from "@/pages/TipsPage";
-import RegionPage from "@/pages/RegionPage";
-import PositionPage from "@/pages/PositionPage";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from '@/components/Layout/Navbar';
+import Footer from '@/components/Layout/Footer';
+import HomePage from '@/pages/HomePage';
+import QuestionBankPage from '@/pages/QuestionBankPage';
+import TipsPage from '@/pages/TipsPage';
+import RegionPage from '@/pages/RegionPage';
+import PositionPage from '@/pages/PositionPage';
 
 export default function App() {
   return (
