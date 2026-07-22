@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, Lightbulb, MapPin, Briefcase, Users, TrendingUp, Clock } from 'lucide-react';
+import { BookOpen, Lightbulb, MapPin, Briefcase, Users, TrendingUp, Clock, Newspaper, ExternalLink } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { hotNews } from '@/data/news';
 
 const modules = [
   {
@@ -164,6 +165,45 @@ export default function HomePage() {
                   </span>
                 </motion.div>
               </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Hot News Section */}
+      <section className="bg-white px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex items-center gap-3 mb-8">
+            <Newspaper className="w-6 h-6 text-primary-600" />
+            <h2 className="font-serif text-2xl font-bold text-primary-800">考公热点</h2>
+            <span className="text-xs text-gray-400 ml-2">每日更新</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {hotNews.map((news, index) => (
+              <motion.div
+                key={news.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 * index, duration: 0.4 }}
+                className="group rounded-xl border border-gray-100 bg-gray-50 p-5 hover:border-primary-200 hover:bg-primary-50/30 transition-all"
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <span className={`flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${news.tagColor}`}>
+                    {news.tag}
+                  </span>
+                  <span className="text-xs text-gray-400 flex-shrink-0">{news.date}</span>
+                </div>
+                <h3 className="font-serif text-base font-bold text-gray-800 group-hover:text-primary-700 transition-colors line-clamp-2">
+                  {news.title}
+                </h3>
+                <p className="mt-2 text-sm text-gray-500 leading-relaxed line-clamp-3">
+                  {news.summary}
+                </p>
+                <div className="mt-3 flex items-center gap-1 text-xs text-gray-400">
+                  <ExternalLink className="w-3 h-3" />
+                  <span>{news.source}</span>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
