@@ -12,7 +12,7 @@ export default function App() {
     <Router>
       <div className="min-h-screen flex flex-col bg-[#f7f8fa]">
         <Navbar />
-        <main className="flex-1">
+        <main className="flex-1 pt-14">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/question-bank" element={<QuestionBankPage />} />
