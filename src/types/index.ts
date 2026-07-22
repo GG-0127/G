@@ -21,6 +21,7 @@ export interface ExamModule {
   category: 'xingce' | 'shenlun';
   description: string;
   icon: string;
+  color?: string;
   topics: KnowledgeTopic[];
 }
 
