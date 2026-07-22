@@ -42,11 +42,13 @@ export interface PositionRecommendation {
   id: string;
   examType: string;
   positionType: string;
+  category: '公务员' | '事业单位' | '军队文职' | '基层项目';
   suitableFor: {
     education: string[];
     majors: string[];
     isFreshGrad: boolean | null;
     politicalStatus: string[];
+    regions?: string[];
   };
   competitionRatio: string;
   developmentProspect: string;
@@ -57,6 +59,11 @@ export interface PositionRecommendation {
   pros: string[];
   cons: string[];
   tipsForPreparation: string;
+  recruitmentScale?: string;
+  entryScore?: string;
+  workLocation?: string;
+  workIntensity?: string;
+  specificRequirements?: string[];
 }
 
 export interface ExamTip {
