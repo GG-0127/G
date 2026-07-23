@@ -4,7 +4,7 @@ on:
   schedule:
     # 每天北京时间 08:00 (UTC 00:00) 运行
     - cron: "0 0 * * *"
-  workflow_dispatch: # 允许手动触发
+  workflow_dispatch:
 
 jobs:
   update-news:
@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,15 +28,23 @@ jobs:
         run: npm ci
 
       - name: Run news update script
+        id: update
         run: npx tsx scripts/update-news.ts
+        continue-on-error: true
+
+      - name: Report status
+        if: steps.update.outcome == 'failure'
+        run: echo "News update script failed, but workflow continues."
 
       - name: Check for changes
         id: check
         run: |
           if [ -n "$(git status --porcelain src/data/news.ts)" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
+            echo "News file has changes, will commit."
           else
             echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes in news file."
           fi
 
       - name: Commit and push
